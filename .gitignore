@@ -122,3 +122,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+.idea
+/env_config.yml
+/example_config.yml
+/dev_config.yml
+.DS_Store

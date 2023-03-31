@@ -8,3 +8,7 @@ class AliasError(Exception):
 
 class CreateAliasError(Exception):
     pass
+
+
+class DomainError(Exception):
+    pass

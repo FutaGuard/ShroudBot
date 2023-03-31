@@ -30,7 +30,7 @@ class ShroudAPI:
             self.session = aiohttp.ClientSession(headers=headers)
             return self.token
 
-    async def aliases(self, page_size: int = 20, pages: int = 1):
+    async def aliases(self, page_size: int = 20, pages: int = 1) -> types.Alias:
         async with self.session as session:
             # ?page_size=10&page=3
             resp = await session.get(self.url + f'/aliases?page_size={page_size}&page={pages}')
@@ -38,7 +38,7 @@ class ShroudAPI:
                 raise errors.AliasError('Request Alias Error.')
             return types.Alias.from_json(await resp.text())
 
-    async def create(self, alias: str = None, domain: str = None):
+    async def create(self, alias: str = None, domain: str = None) -> types.EmailAliases:
         custom_domain = bool(alias) is True and bool(domain) is True
         if not bool(alias) == bool(domain):
             raise errors.CreateAliasError('You must specify either an alias or a domain.')
@@ -57,3 +57,11 @@ class ShroudAPI:
                 except Exception:
                     raise errors.CreateAliasError('Request to create new alias error.')
             return types.EmailAliases.from_json(await resp.text())
+
+    async def domains(self, page_size: int = 20, pages: int = 1) -> types.Domains:
+        async with self.session as session:
+            resp = await session.get(self.url + f'/domains?page_size={page_size}&page={pages}')
+            if resp.status != 200:
+                raise errors.DomainError('Request Domains Error.')
+            return types.Domains.from_json(await resp.text())
+

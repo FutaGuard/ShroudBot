@@ -50,7 +50,10 @@ class ShroudAPI:
                     'local_part': alias,
                     'domain': domain
                 }
-            resp = await session.post(self.url + '/aliases')
+            resp = await session.post(self.url + '/aliases', json=data)
             if resp.status != 200:
-                raise errors.CreateAliasError('Request to create new alias error.')
+                try:
+                    raise errors.CreateAliasError((await resp.json())['error'])
+                except Exception:
+                    raise errors.CreateAliasError('Request to create new alias error.')
             return types.EmailAliases.from_json(await resp.text())

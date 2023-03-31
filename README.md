@@ -1,4 +1,5 @@
 # ShroudBot
+[ [English](README.en.md) ]
 
 這是一個使用 telegram 聊天機器人快速生成和管理電子郵件別名的機器人
 

@@ -27,7 +27,15 @@ class Config:
     class Log:
         level: str = field(hash=False, repr=True, compare=False, default=None)
 
+    @dataclass_json
+    @dataclass
+    class Shroud:
+        email: str = field(hash=False, repr=True, compare=False, default=None)
+        password: str = field(hash=False, repr=True, compare=False, default=None)
+        totp: str = field(hash=False, repr=True, compare=False, default=None)
+
     dev_mode: bool = field(hash=False, repr=True, compare=False, default=None)
+    shroud: Shroud = Shroud
     bot: Bot = Bot
     log: Log = Log
     admin: int = 525239263

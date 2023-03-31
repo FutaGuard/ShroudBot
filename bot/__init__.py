@@ -3,6 +3,7 @@ from pyrogram.types import User
 from bot.utils import watchlog
 from bot import config
 from typing import Union, Optional
+from shroudapi import ShroudAPI
 
 opt = config.load()
 
@@ -11,6 +12,7 @@ class Bot(Client):
     _instance: Union[None, "Bot"] = None
 
     me: Optional[User] = None
+    shroud: ShroudAPI = ShroudAPI(opt.shroud.email, opt.shroud.password, opt.shroud.totp)
 
     def __init__(self, inst_name: str = 'daemon'):
         super().__init__(
@@ -21,13 +23,13 @@ class Bot(Client):
             plugins=dict(root='bot/plugins')
         )
 
-        # self.group_id: str = os.getenv("TARGET")
-        # self.base_url: str = os.getenv("BASE_URL")
-
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance
+
+    async def shroud_auth(self):
+        await self.shroud.auth()
 
     @property
     def admins(self):

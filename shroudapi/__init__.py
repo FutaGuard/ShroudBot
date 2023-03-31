@@ -1,6 +1,7 @@
 import aiohttp
 from typing import Optional
 from shroudapi import errors, types
+import pyotp
 
 
 class ShroudAPI:
@@ -19,11 +20,13 @@ class ShroudAPI:
                 'password': self.password,
             }
             if self.totp:
-                data['totp'] = self.totp
-
+                data['totp'] = int(pyotp.TOTP(self.totp).now())
             resp = await session.post(self.url + '/token', json=data)
             if resp.status != 200:
-                raise errors.AuthError('Email or Password is incorrect.')
+                try:
+                    raise errors.AuthError((await resp.json()))
+                except Exception:
+                    raise errors.AuthError('Email or Password is incorrect.')
 
             self.token: types.Token = types.Token.from_json(await resp.text())
             headers = {'Authorization': f'Bearer {self.token.token}'}

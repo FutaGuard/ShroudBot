@@ -21,7 +21,7 @@ class ShroudAPI:
             if self.totp:
                 data['totp'] = self.totp
 
-            resp = await session.post(f'{self.url}/token', json=data)
+            resp = await session.post(self.url + '/token', json=data)
             if resp.status != 200:
                 raise errors.AuthError('Email or Password is incorrect.')
 
@@ -30,8 +30,27 @@ class ShroudAPI:
             self.session = aiohttp.ClientSession(headers=headers)
             return self.token
 
-    async def list(self, pages: int = 1):
+    async def aliases(self, page_size: int = 20, pages: int = 1):
         async with self.session as session:
-            resp = await session.get(f'{self.url}/aliases')
-            print(await resp.text())
+            # ?page_size=10&page=3
+            resp = await session.get(self.url + f'/aliases?page_size={page_size}&page={pages}')
+            if resp.status != 200:
+                raise errors.AliasError('Request Alias Error.')
+            return types.Alias.from_json(await resp.text())
 
+    async def create(self, alias: str = None, domain: str = None):
+        custom_domain = bool(alias) is True and bool(domain) is True
+        if not bool(alias) == bool(domain):
+            raise errors.CreateAliasError('You must specify either an alias or a domain.')
+
+        data: dict = None
+        async with self.session as session:
+            if custom_domain:
+                data = {
+                    'local_part': alias,
+                    'domain': domain
+                }
+            resp = await session.post(self.url + '/aliases')
+            if resp.status != 200:
+                raise errors.CreateAliasError('Request to create new alias error.')
+            return types.EmailAliases.from_json(await resp.text())
